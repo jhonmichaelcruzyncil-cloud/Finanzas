@@ -21,8 +21,6 @@
                 }
             }
         }
-    <!-- SDK Oficial de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     </script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -32,6 +30,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #f8fafc; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
@@ -93,7 +93,7 @@
                     </button>
                     <div>
                         <h2 class="text-base font-semibold text-white capitalize" x-text="getTabTitle()"></h2>
-                        <p class="text-xs text-slate-400">Control consolidado con persistencia automática en la nube</p>
+                        <p class="text-xs text-slate-400">Control consolidado con persistencia automática en Supabase</p>
                     </div>
                 </div>
 
@@ -191,7 +191,7 @@
                                     <div>
                                         <div class="flex justify-between items-start mb-3">
                                             <div>
-                                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg" :style="'background-color: ' + card.color + '20; color: ' + card.color" x-text="card.banco"></span>
+                                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg" :style="'background-color: ' + (card.color || '#6366f1') + '20; color: ' + (card.color || '#6366f1')" x-text="card.banco"></span>
                                                 <h4 class="text-base font-bold text-white mt-2" x-text="card.nombre"></h4>
                                             </div>
                                             <span class="text-xs px-2.5 py-1 rounded-full font-bold"
@@ -207,7 +207,7 @@
                                             </div>
                                             <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                                                 <div class="h-full rounded-full transition-all duration-500" 
-                                                     :style="'width: ' + Math.min(100, calcPorcentaje(card)) + '%; background-color: ' + card.color"></div>
+                                                     :style="'width: ' + Math.min(100, calcPorcentaje(card)) + '%; background-color: ' + (card.color || '#6366f1')"></div>
                                             </div>
                                         </div>
 
@@ -264,7 +264,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h3 class="text-lg font-bold text-white">Gestión de Tarjetas y Ciclos de Facturación</h3>
-                            <p class="text-xs text-slate-400">Edita, agrega o elimina tarjetas con guardado automático inmediato en la nube.</p>
+                            <p class="text-xs text-slate-400">Edita, agrega o elimina tarjetas con guardado automático inmediato en Supabase.</p>
                         </div>
                         <button @click="abrirNuevaTarjeta()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center gap-2">
                             <i class="fa-solid fa-plus"></i> Nueva Tarjeta
@@ -292,7 +292,7 @@
                                         <tr class="hover:bg-slate-800/30 transition">
                                             <td class="p-4">
                                                 <div class="flex items-center space-x-3">
-                                                    <div class="w-3 h-3 rounded-full" :style="'background-color: ' + card.color"></div>
+                                                    <div class="w-3 h-3 rounded-full" :style="'background-color: ' + (card.color || '#6366f1')"></div>
                                                     <div>
                                                         <p class="font-bold text-white" x-text="card.banco"></p>
                                                         <p class="text-xs text-slate-400" x-text="card.nombre"></p>
@@ -328,7 +328,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h3 class="text-lg font-bold text-white">Historial de Compras y Movimientos</h3>
-                            <p class="text-xs text-slate-400">Listado general de consumos procesados sincronizados en la nube.</p>
+                            <p class="text-xs text-slate-400">Listado general de consumos procesados sincronizados en Supabase.</p>
                         </div>
                         <div class="flex gap-2 w-full sm:w-auto">
                             <input type="text" x-model="searchMovimiento" placeholder="Buscar comercio..." class="bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 w-full sm:w-64">
@@ -682,7 +682,7 @@
         </div>
     </div>
 
-    <!-- ================= MODAL EDITAR / CREAR TARJETA (CRUD COMPLETO) ================= -->
+    <!-- ================= MODAL EDITAR / CREAR TARJETA ================= -->
     <div x-show="modalCardOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" style="display: none;">
         <div class="glass-card w-full max-w-md p-6 rounded-2xl border border-slate-700/60 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -748,77 +748,51 @@
         </div>
     </div>
 
-    <!-- Script de Configuración Cloud (Firebase/Supabase Base Config) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Script de Conexión Nativa con Supabase -->
+    <script>
+        // REEMPLAZA ESTOS DOS DATOS CON LOS DE TU PROYECTO DE SUPABASE (Settings -> API)
+        const SUPABASE_URL = 'TU_PROJECT_URL_AQUI';
+        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'finhub-wallet-control-v3';
-        
-        // Reemplaza o deja este objeto de configuración según el proyecto cloud que utilices
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyDummyKeyForLocalSandbox",
-            authDomain: "sandbox.firebaseapp.com",
-            projectId: "sandbox-project"
-        };
+        // Inicializar cliente global de Supabase
+        const { createClient } = supabase;
+        window._supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        window.firebaseInit = async function() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                console.log("Cloud Authenticated successfully. UID:", auth.currentUser?.uid);
-            } catch (e) {
-                console.error("Cloud auth error:", e);
-                await signInAnonymously(auth);
-            }
-        };
-
+        // Operaciones de base de datos adaptadas para Supabase
         window.dbOperations = {
-            async fetchCollection(colName) {
+            async fetchCollection(tableName) {
                 try {
-                    const userId = auth.currentUser?.uid || 'default-user';
-                    const colRef = collection(db, 'artifacts', appId, 'users', userId, colName);
-                    const snapshot = await getDocs(colRef);
-                    const items = [];
-                    snapshot.forEach(docSnap => {
-                        items.push({ id: docSnap.id, ...docSnap.data() });
-                    });
-                    return items;
+                    const { data, error } = await window._supabase.from(tableName).select('*');
+                    if (error) {
+                        console.error(`Error al obtener ${tableName}:`, error);
+                        return [];
+                    }
+                    return data || [];
                 } catch(e) {
-                    console.error("Fetch error:", e);
+                    console.error("Fetch exception:", e);
                     return [];
                 }
             },
-            async saveDoc(colName, id, data) {
+            async saveDoc(tableName, id, itemData) {
                 try {
-                    const userId = auth.currentUser?.uid || 'default-user';
-                    const docRef = doc(db, 'artifacts', appId, 'users', userId, colName, String(id));
-                    await setDoc(docRef, data, { merge: true });
+                    const { error } = await window._supabase.from(tableName).upsert([itemData]);
+                    if (error) console.error(`Error al guardar en ${tableName}:`, error);
                 } catch(e) {
-                    console.error("Save error:", e);
+                    console.error("Save exception:", e);
                 }
             },
-            async deleteDoc(colName, id) {
+            async deleteDoc(tableName, id) {
                 try {
-                    const userId = auth.currentUser?.uid || 'default-user';
-                    const docRef = doc(db, 'artifacts', appId, 'users', userId, colName, String(id));
-                    await deleteDoc(docRef);
+                    const { error } = await window._supabase.from(tableName).delete().eq('id', String(id));
+                    if (error) console.error(`Error al eliminar en ${tableName}:`, error);
                 } catch(e) {
-                    console.error("Delete error:", e);
+                    console.error("Delete exception:", e);
                 }
             }
         };
     </script>
 
-    <!-- Script Principal de Lógica (Alpine.js) -->
+    <!-- Script Principal de la App (Alpine.js) -->
     <script>
         function finHubApp() {
             return {
@@ -829,7 +803,7 @@
                 modalPagoOpen: false,
                 modalCardOpen: false,
                 editCardMode: false,
-                syncStatus: 'Conectando nube...',
+                syncStatus: 'Conectando a Supabase...',
                 toastShow: false,
                 toastMessage: '',
 
@@ -885,10 +859,7 @@
                 simTea: 89.99,
 
                 async init() {
-                    if (window.firebaseInit) {
-                        await window.firebaseInit();
-                        await this.loadFromCloud();
-                    }
+                    await this.loadFromCloud();
                     this.$nextTick(() => {
                         this.renderCharts();
                     });
@@ -930,7 +901,7 @@
                                 await window.dbOperations.saveDoc('pagos', p.id, p);
                             }
                         }
-                        this.syncStatus = 'Sincronizado con la Nube';
+                        this.syncStatus = 'Sincronizado con Supabase';
                     } catch (e) {
                         console.error("Cloud sync error:", e);
                         this.syncStatus = 'Modo Local (Offline)';
@@ -943,7 +914,7 @@
                 },
 
                 formatNum(val) {
-                    return Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 },
 
                 totalDeuda() {
@@ -1008,7 +979,7 @@
 
                     await window.dbOperations.saveDoc('tarjetas', this.formCard.id, this.formCard);
                     this.modalCardOpen = false;
-                    this.showToast('Tarjeta guardada y sincronizada en la nube');
+                    this.showToast('Tarjeta guardada y sincronizada en Supabase');
                     this.$nextTick(() => { this.renderCharts(); });
                 },
 
@@ -1044,7 +1015,7 @@
                     this.modalCompraOpen = false;
                     this.formCompra.descripcion = '';
                     this.formCompra.monto = 0;
-                    this.showToast('Compra registrada y saldo actualizado en la nube');
+                    this.showToast('Compra registrada y saldo actualizado en Supabase');
                     this.$nextTick(() => { this.renderCharts(); });
                 },
 
@@ -1068,7 +1039,7 @@
 
                     this.modalPagoOpen = false;
                     this.formPago.monto = 0;
-                    this.showToast('Pago registrado y saldo actualizado en la nube');
+                    this.showToast('Pago registrado y saldo actualizado en Supabase');
                     this.$nextTick(() => { this.renderCharts(); });
                 },
 
@@ -1105,7 +1076,7 @@
                                 datasets: [{
                                     label: 'Deuda Actual (S/)',
                                     data: this.tarjetas.map(c => c.saldo_actual),
-                                    backgroundColor: this.tarjetas.map(c => c.color),
+                                    backgroundColor: this.tarjetas.map(c => c.color || '#6366f1'),
                                     borderRadius: 8
                                 }]
                             },
@@ -1146,34 +1117,6 @@
                 }
             }
         }
-        // Tus credenciales reales de Supabase
-    const SUPABASE_URL = 'https://wbmeexsipqgcdelbzyuf.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable__chUrR7AJ-m-_Bvlwl4ihw_QWrFB9JV';
-
-    // Inicializar cliente de Supabase
-    const { createClient } = supabase;
-    const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // Objeto de operaciones adaptado para Supabase
-    window.dbOperations = {
-        async fetchCollection(tableName) {
-            const { data, error } = await _supabase.from(tableName).select('*');
-            if (error) {
-                console.error("Error al obtener de Supabase:", error);
-                return [];
-            }
-            return data;
-        },
-        async saveDoc(tableName, id, data) {
-            // Supabase maneja upsert (insertar o actualizar si ya existe el ID)
-            const { error } = await _supabase.from(tableName).upsert([data]);
-            if (error) console.error("Error al guardar en Supabase:", error);
-        },
-        async deleteDoc(tableName, id) {
-            const { error } = await _supabase.from(tableName).delete().eq('id', id);
-            if (error) console.error("Error al eliminar en Supabase:", error);
-        }
-    };
     </script>
 </body>
 </html>
