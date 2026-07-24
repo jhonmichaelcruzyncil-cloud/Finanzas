@@ -746,12 +746,15 @@
         </div>
     </div>
 
+    <!-- Script de Configuración Cloud (Firebase/Supabase Base Config) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'finhub-wallet-control-v3';
+        
+        // Reemplaza o deja este objeto de configuración según el proyecto cloud que utilices
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDummyKeyForLocalSandbox",
             authDomain: "sandbox.firebaseapp.com",
@@ -769,9 +772,9 @@
                 } else {
                     await signInAnonymously(auth);
                 }
-                console.log("Firebase Authenticated successfully. UID:", auth.currentUser?.uid);
+                console.log("Cloud Authenticated successfully. UID:", auth.currentUser?.uid);
             } catch (e) {
-                console.error("Firebase auth error:", e);
+                console.error("Cloud auth error:", e);
                 await signInAnonymously(auth);
             }
         };
@@ -813,6 +816,7 @@
         };
     </script>
 
+    <!-- Script Principal de Lógica (Alpine.js) -->
     <script>
         function finHubApp() {
             return {
