@@ -1146,6 +1146,34 @@
                 }
             }
         }
+        // Tus credenciales reales de Supabase
+    const SUPABASE_URL = 'https://wbmeexsipqgcdelbzyuf.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable__chUrR7AJ-m-_Bvlwl4ihw_QWrFB9JV';
+
+    // Inicializar cliente de Supabase
+    const { createClient } = supabase;
+    const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Objeto de operaciones adaptado para Supabase
+    window.dbOperations = {
+        async fetchCollection(tableName) {
+            const { data, error } = await _supabase.from(tableName).select('*');
+            if (error) {
+                console.error("Error al obtener de Supabase:", error);
+                return [];
+            }
+            return data;
+        },
+        async saveDoc(tableName, id, data) {
+            // Supabase maneja upsert (insertar o actualizar si ya existe el ID)
+            const { error } = await _supabase.from(tableName).upsert([data]);
+            if (error) console.error("Error al guardar en Supabase:", error);
+        },
+        async deleteDoc(tableName, id) {
+            const { error } = await _supabase.from(tableName).delete().eq('id', id);
+            if (error) console.error("Error al eliminar en Supabase:", error);
+        }
+    };
     </script>
 </body>
 </html>
